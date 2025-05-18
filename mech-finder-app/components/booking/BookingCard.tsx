@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
-import { Calendar, Clock, Car } from 'lucide-react-native';
+import { Calendar, Clock, Car, AlertTriangle } from 'lucide-react-native';
 import { Booking } from '@/mock/bookingsData';
 
 interface BookingCardProps {
@@ -93,15 +93,31 @@ export const BookingCard: React.FC<BookingCardProps> = ({ booking, onPress }) =>
           </View>
         </View>
 
-        <Text
-          style={[
-            styles.service,
-            typography.body2,
-            { color: isDark ? colors.gray[700] : colors.gray[700], fontFamily: 'Inter-Medium' },
-          ]}
-        >
-          {booking.service}
-        </Text>
+        <View style={styles.serviceRow}>
+          <Text
+            style={[
+              styles.service,
+              typography.body2,
+              { color: isDark ? colors.gray[700] : colors.gray[700], fontFamily: 'Inter-Medium' },
+            ]}
+          >
+            {booking.service.name}
+          </Text>
+          {booking.isEmergency && (
+            <View style={styles.emergencyBadge}>
+              <AlertTriangle color={colors.error[500]} size={spacing.iconSize.small} />
+              <Text
+                style={[
+                  styles.emergencyText,
+                  typography.caption,
+                  { color: colors.error[500] },
+                ]}
+              >
+                Emergency
+              </Text>
+            </View>
+          )}
+        </View>
 
         <View style={styles.infoRow}>
           <View style={styles.infoItem}>
@@ -202,8 +218,24 @@ const styles = StyleSheet.create({
   statusText: {
     textTransform: 'uppercase',
   },
-  service: {
+  serviceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 8,
+  },
+  service: {
+    flex: 1,
+  },
+  emergencyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  emergencyText: {
+    marginLeft: 4,
   },
   infoRow: {
     flexDirection: 'row',

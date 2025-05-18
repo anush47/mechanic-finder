@@ -12,8 +12,10 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { router } from 'expo-router';
 import { BookingCard } from '@/components/booking/BookingCard';
 import { Booking, bookingsData } from '@/mock/bookingsData';
+import { AlertCircle } from 'lucide-react-native';
+import { Button } from '@/components/ui/Button';
 
-type FilterType = 'all' | 'upcoming' | 'past';
+type FilterType = 'all' | 'upcoming' | 'past' | 'emergency';
 
 export default function BookingsScreen() {
   const { colors, spacing, typography, isDark } = useTheme();
@@ -26,27 +28,38 @@ export default function BookingsScreen() {
     });
   };
 
+  const handleNewBooking = () => {
+    router.push('/booking/new');
+  };
+
   const filterBookings = () => {
     const today = new Date();
     
+    let filtered = [...bookingsData];
+    
     switch (activeFilter) {
       case 'upcoming':
-        return bookingsData.filter(
+        filtered = filtered.filter(
           (booking) => 
             new Date(booking.date) >= today && 
             booking.status !== 'cancelled' && 
             booking.status !== 'completed'
         );
+        break;
       case 'past':
-        return bookingsData.filter(
+        filtered = filtered.filter(
           (booking) => 
             new Date(booking.date) < today || 
             booking.status === 'cancelled' || 
             booking.status === 'completed'
         );
-      default:
-        return bookingsData;
+        break;
+      case 'emergency':
+        filtered = filtered.filter((booking) => booking.isEmergency);
+        break;
     }
+
+    return filtered;
   };
 
   const filteredBookings = filterBookings();
@@ -65,6 +78,12 @@ export default function BookingsScreen() {
         >
           My Bookings
         </Text>
+        <Button
+          title="New Booking"
+          variant="primary"
+          onPress={handleNewBooking}
+          size="small"
+        />
       </View>
 
       <View
@@ -73,71 +92,30 @@ export default function BookingsScreen() {
           { backgroundColor: isDark ? colors.gray[100] : colors.white },
         ]}
       >
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            activeFilter === 'all' && {
-              backgroundColor: colors.primary[500],
-            },
-          ]}
-          onPress={() => setActiveFilter('all')}
-        >
-          <Text
+        {(['all', 'upcoming', 'past', 'emergency'] as FilterType[]).map((filter) => (
+          <TouchableOpacity
+            key={filter}
             style={[
-              styles.filterText,
-              typography.button,
-              {
-                color: activeFilter === 'all' ? colors.white : (isDark ? colors.gray[700] : colors.gray[700]),
+              styles.filterButton,
+              activeFilter === filter && {
+                backgroundColor: colors.primary[500],
               },
             ]}
+            onPress={() => setActiveFilter(filter)}
           >
-            All
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            activeFilter === 'upcoming' && {
-              backgroundColor: colors.primary[500],
-            },
-          ]}
-          onPress={() => setActiveFilter('upcoming')}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              typography.button,
-              {
-                color: activeFilter === 'upcoming' ? colors.white : (isDark ? colors.gray[700] : colors.gray[700]),
-              },
-            ]}
-          >
-            Upcoming
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            activeFilter === 'past' && {
-              backgroundColor: colors.primary[500],
-            },
-          ]}
-          onPress={() => setActiveFilter('past')}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              typography.button,
-              {
-                color: activeFilter === 'past' ? colors.white : (isDark ? colors.gray[700] : colors.gray[700]),
-              },
-            ]}
-          >
-            Past
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[
+                styles.filterText,
+                typography.button,
+                {
+                  color: activeFilter === filter ? colors.white : (isDark ? colors.gray[700] : colors.gray[700]),
+                },
+              ]}
+            >
+              {filter.charAt(0).toUpperCase() + filter.slice(1)}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {filteredBookings.length > 0 ? (
@@ -152,6 +130,7 @@ export default function BookingsScreen() {
         />
       ) : (
         <View style={styles.emptyContainer}>
+          <AlertCircle color={colors.gray[400]} size={spacing.iconSize.large * 2} style={styles.emptyIcon} />
           <Text
             style={[
               styles.emptyText,
@@ -161,6 +140,12 @@ export default function BookingsScreen() {
           >
             No {activeFilter === 'all' ? '' : activeFilter} bookings found
           </Text>
+          <Button
+            title="Book a Service"
+            variant="primary"
+            onPress={handleNewBooking}
+            style={styles.bookButton}
+          />
         </View>
       )}
     </SafeAreaView>
@@ -173,6 +158,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 24,
   },
   title: {
@@ -201,7 +189,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 32,
   },
+  emptyIcon: {
+    marginBottom: 16,
+  },
   emptyText: {
+    marginBottom: 24,
     textAlign: 'center',
+  },
+  bookButton: {
+    minWidth: 200,
   },
 });
