@@ -1,48 +1,196 @@
-import { Card, Text, Button, Avatar } from "react-native-paper";
-import { useSession } from "../../../ctx";
-import { View, StyleSheet } from "react-native";
+import React from "react";
+import {
+  Card,
+  Text,
+  Button,
+  Avatar,
+  useTheme,
+  Surface,
+  Divider,
+  Switch,
+  Menu,
+} from "react-native-paper";
+import { useSession } from "../../../services/ctx";
+import { View, StyleSheet, ScrollView, Modal } from "react-native";
+import { TextInput } from "react-native-paper";
+import { useState } from "react";
 
 export default function ProfileScreen() {
-  const { signOut, user } = useSession();
+  const { signOut, user, themeMode, setThemeMode } = useSession();
+  const theme = useTheme();
+  const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
+  const [visible, setVisible] = React.useState(false);
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
+  const openPasswordModal = () => setPasswordModalVisible(true);
+  const closePasswordModal = () => setPasswordModalVisible(false);
+
+  const onToggleNotificationSwitch = () =>
+    setIsNotificationEnabled(!isNotificationEnabled);
+
+  const handleChangePassword = () => {
+    // TODO: Implement API call to change password
+    console.log("Change password API call placeholder");
+    closePasswordModal();
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileHeader}>
-        <Avatar.Image
-          size={100}
-          source={{ uri: "https://via.placeholder.com/100" }}
-        />
-        <Text style={styles.name}>{user?.name}</Text>
-      </View>
+    <View>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.profileHeader}>
+          <Avatar.Image
+            size={100}
+            source={{ uri: "https://picsum.photos/1400" }}
+          />
+          <Text style={styles.name}>{user?.name}</Text>
+        </View>
 
-      <Card style={styles.infoCard}>
-        <Card.Content>
-          <Text style={styles.infoLabel}>Email:</Text>
-          <Text style={styles.infoValue}>{user?.email}</Text>
+        <Surface style={styles.optionsCard}>
+          <Text style={styles.optionsTitle}>Settings</Text>
+          <Divider style={styles.divider} />
 
-          <Text style={styles.infoLabel}>Phone:</Text>
-          <Text style={styles.infoValue}>{user?.phone}</Text>
-        </Card.Content>
-      </Card>
+          <View style={styles.optionRow}>
+            <Text>Notifications</Text>
+            <Switch
+              value={isNotificationEnabled}
+              onValueChange={onToggleNotificationSwitch}
+            />
+          </View>
 
-      <Button
-        mode="contained"
-        style={styles.signOutButton}
-        onPress={() => {
-          signOut();
-        }}
+          <View style={styles.optionRow}>
+            <Text>Theme</Text>
+            <Menu
+              visible={visible}
+              onDismiss={closeMenu}
+              anchor={
+                <Button onPress={openMenu}>{themeMode.toUpperCase()}</Button>
+              }
+            >
+              <Menu.Item
+                onPress={() => {
+                  setThemeMode("light");
+                  closeMenu();
+                }}
+                title="Light"
+              />
+              <Menu.Item
+                onPress={() => {
+                  setThemeMode("dark");
+                  closeMenu();
+                }}
+                title="Dark"
+              />
+              <Menu.Item
+                onPress={() => {
+                  setThemeMode("system");
+                  closeMenu();
+                }}
+                title="System"
+              />
+            </Menu>
+          </View>
+
+          <Divider style={styles.divider} />
+
+          <Button
+            mode="outlined"
+            style={styles.button}
+            onPress={openPasswordModal}
+          >
+            Change Password
+          </Button>
+
+          <Button mode="outlined" style={styles.button}>
+            Help & Support
+          </Button>
+
+          <Button mode="outlined" style={styles.button}>
+            Terms & Conditions
+          </Button>
+        </Surface>
+
+        <Button
+          mode="contained"
+          style={{ backgroundColor: theme.colors.error, marginTop: 20 }}
+          onPress={() => {
+            signOut();
+          }}
+        >
+          Sign Out
+        </Button>
+      </ScrollView>
+
+      {/* Modal for Request Order */}
+      <Modal
+        visible={passwordModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setPasswordModalVisible(false)}
       >
-        Sign Out
-      </Button>
+        <View style={styles.modalOverlay}>
+          <Surface style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Change Password</Text>
+
+            <TextInput
+              label="Current Password"
+              mode="outlined"
+              secureTextEntry
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              style={styles.input}
+            />
+
+            <TextInput
+              label="New Password"
+              mode="outlined"
+              secureTextEntry
+              value={newPassword}
+              onChangeText={setNewPassword}
+              style={styles.input}
+            />
+
+            <TextInput
+              label="Confirm New Password"
+              mode="outlined"
+              secureTextEntry
+              value={confirmNewPassword}
+              onChangeText={setConfirmNewPassword}
+              style={styles.input}
+            />
+
+            <View style={styles.modalButtonRow}>
+              <Button
+                mode="outlined"
+                onPress={() => setPasswordModalVisible(false)}
+                style={styles.modalButton}
+              >
+                Back
+              </Button>
+
+              <Button
+                mode="contained"
+                onPress={handleChangePassword}
+                style={styles.modalButton}
+              >
+                Confirm
+              </Button>
+            </View>
+          </Surface>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
-    backgroundColor: "#f5f5f5",
   },
   profileHeader: {
     alignItems: "center",
@@ -53,20 +201,58 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  infoCard: {
+  optionsCard: {
+    padding: 16,
+    borderRadius: 8,
     marginBottom: 20,
-    padding: 10,
   },
-  infoLabel: {
-    fontSize: 16,
+  optionsTitle: {
+    fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 16,
+  },
+  optionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  divider: {
+    marginVertical: 10,
+  },
+  button: {
     marginTop: 10,
   },
-  infoValue: {
-    fontSize: 16,
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+    width: "80%",
+    alignSelf: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
     marginBottom: 10,
   },
-  signOutButton: {
-    backgroundColor: "#d9534f",
+  input: {
+    marginBottom: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  modalButtonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 4,
   },
 });

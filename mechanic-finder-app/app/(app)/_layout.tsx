@@ -1,20 +1,6 @@
 import { Text } from "react-native";
 import { Redirect, Stack } from "expo-router";
-import {
-  MD3LightTheme as DefaultTheme,
-  PaperProvider,
-} from "react-native-paper";
-
-import { useSession } from "../../ctx";
-
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "tomato",
-    secondary: "yellow",
-  },
-};
+import { useSession } from "../../services/ctx";
 
 export default function AppLayout() {
   const { user, isLoading } = useSession();
@@ -34,11 +20,9 @@ export default function AppLayout() {
 
   // This layout can be deferred because it's not the root layout.
   return (
-    <PaperProvider theme={theme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </PaperProvider>
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }

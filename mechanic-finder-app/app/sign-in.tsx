@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
-import { useSession } from "../ctx";
+import { useSession } from "../services/ctx";
 import { TextInput } from "react-native-paper";
 import { Text } from "react-native-paper";
-import { Button, Card } from "react-native-paper";
+import { Button, Card, useTheme } from "react-native-paper";
 import { View, StyleSheet } from "react-native";
 
 export default function SignIn() {
   const { signIn, signUp, user } = useSession();
+
+  const theme = useTheme();
 
   useEffect(() => {
     if (user) {
@@ -24,6 +26,7 @@ export default function SignIn() {
   const [error, setError] = useState("");
 
   const validatePassword = (pwd: string) => {
+    return true;
     return pwd.length >= 6 && /[A-Za-z]/.test(pwd) && /[0-9]/.test(pwd);
   };
 
@@ -57,7 +60,9 @@ export default function SignIn() {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Card style={styles.card}>
         <Text style={styles.title}>
           {isRegistering ? "Create Account" : "Welcome Back"}
@@ -136,7 +141,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
     padding: 16,
   },
   card: {
@@ -144,8 +148,6 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     padding: 16,
     borderRadius: 8,
-    backgroundColor: "#ffffff",
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -156,26 +158,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
     textAlign: "center",
-    color: "#333",
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
     marginBottom: 16,
     textAlign: "center",
   },
   errorText: {
-    color: "#d32f2f",
     marginBottom: 16,
     textAlign: "center",
   },
   input: {
     marginBottom: 16,
-    backgroundColor: "#f9f9f9",
   },
   button: {
     marginTop: 16,
-    backgroundColor: "#6200ee",
   },
   switchButton: {
     marginTop: 8,

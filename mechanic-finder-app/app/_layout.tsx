@@ -1,12 +1,14 @@
 import { Slot } from "expo-router";
-import { SessionProvider } from "../ctx";
+import { SessionProvider } from "../services/ctx";
+import { ThemeProviderComponent } from "@/services/themeProvider";
 import "./global.css";
 
 export default function Root() {
-  // Set up the auth context and render our layout inside of it.
   return (
     <SessionProvider>
-      <Slot />
+      <ThemeProviderComponent>
+        <Slot />
+      </ThemeProviderComponent>
     </SessionProvider>
   );
 }

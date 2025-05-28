@@ -6,12 +6,7 @@ import {
   useEffect,
 } from "react";
 import { useStorageState } from "./useStorageState";
-import {
-  login,
-  register,
-  refreshTokens,
-  fetchUser,
-} from "./services/authService";
+import { login, register, refreshTokens, fetchUser } from "./authService";
 
 const AuthContext = createContext<{
   signIn: (email: string, password: string) => void;
@@ -33,6 +28,8 @@ const AuthContext = createContext<{
     createdAt: string;
     updatedAt: string;
   } | null;
+  themeMode: "light" | "dark" | "system";
+  setThemeMode: (themeMode: "light" | "dark" | "system") => void;
 }>({
   signIn: (email: string, password: string) => null,
   signUp: (name: string, email: string, password: string, phone: string) =>
@@ -41,6 +38,8 @@ const AuthContext = createContext<{
   accessToken: null,
   isLoading: false,
   user: null,
+  themeMode: "system",
+  setThemeMode: (themeMode: "light" | "dark" | "system") => {},
 });
 
 export type User = {
@@ -70,6 +69,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [[isStorageLoadingRefresh, refreshToken], setRefreshToken] =
     useStorageState("refreshToken");
   const [user, setUser] = useState<User | null>(null);
+  const [themeMode, setThemeMode] = useState<"light" | "dark" | "system">(
+    "system"
+  );
 
   useEffect(() => {
     const initializeSession = async () => {
@@ -140,6 +142,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
         accessToken,
         user,
         isLoading,
+        themeMode,
+        setThemeMode,
       }}
     >
       {children}
