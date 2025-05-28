@@ -192,7 +192,7 @@ export default function NeedFuel() {
             <Button
               mode="contained"
               onPress={() => setModalVisible(true)}
-              disabled={!liters || !lkr}
+              disabled={!liters || !lkr || modalVisible}
             >
               Request Order
             </Button>
@@ -203,7 +203,7 @@ export default function NeedFuel() {
       {/* Modal for Request Order */}
       <Modal
         visible={modalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >

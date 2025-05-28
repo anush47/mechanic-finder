@@ -128,7 +128,7 @@ export default function ProfileScreen() {
       {/* Modal for Request Order */}
       <Modal
         visible={passwordModalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setPasswordModalVisible(false)}
       >
